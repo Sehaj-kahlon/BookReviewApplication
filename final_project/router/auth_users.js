@@ -4,7 +4,7 @@ let books = require("./booksdb.js");
 const regd_users = express.Router();
 
 let users = [];
-
+const reviews = {};
 const isValid = (username) => {
   //returns boolean
   //write code to check is the username is valid
@@ -35,14 +35,31 @@ regd_users.post("/login", (req, res) => {
     accessToken,
   };
   // if (username in users && users.password === password) {
-    return res.status(200).send("User successfully logged in");
+  req.session.username = username;
+  return res.status(200).send("User successfully logged in");
   // }
 });
 
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
   //Write your code here
-  return res.status(300).json({ message: "Yet to be implemented" });
+  const username = req.session.username;
+  const isbn = req.params.isbn;
+  const review = req.body.review;
+  if (!username) {
+    return res.status(401).send("You must be logged in to post a review.");
+  }
+  if (reviews[isbn] && reviews[isbn][username]) {
+    // Modify the existing review
+    reviews[isbn][username] = review;
+    return res.send("Review modified successfully for book with isbn " + isbn);
+  }
+  if (!reviews[isbn]) {
+    reviews[isbn] = {};
+  }
+  reviews[isbn][username] = review;
+
+  return res.send("Review posted successfully for book with isbn " + isbn);
 });
 
 module.exports.authenticated = regd_users;
