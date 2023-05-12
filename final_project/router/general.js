@@ -3,7 +3,10 @@ let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
-
+const axios = require("axios");
+const fs = require("fs");
+const { resolve } = require("path");
+const { rejects } = require("assert");
 public_users.post("/register", (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
@@ -22,11 +25,21 @@ public_users.post("/register", (req, res) => {
 });
 
 // Get the book list available in the shop
-public_users.get("/", function (req, res) {
-  //Write your code here
-  res.send(JSON.stringify(books));
+// public_users.get("/", function (req, res) {
+//   //Write your code here
+//   res.send(JSON.stringify(books));
+// });
+// get books list using promise
+let getBooks = new Promise((resolve, rejects) => {
+  resolve(books);
 });
-
+getBooks
+  .then((books) => {
+    console.log(JSON.stringify(books));
+  })
+  .catch((error) => {
+    console.log(error);
+  });
 // Get book details based on ISBN
 public_users.get("/isbn/:isbn", function (req, res) {
   //Write your code here
@@ -34,6 +47,39 @@ public_users.get("/isbn/:isbn", function (req, res) {
   res.send(JSON.stringify(books[isbn]));
 });
 
+// get books list using async await
+const getBooks2 = async () => {
+  try {
+    return books;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Usage
+(async () => {
+  try {
+    const books = await getBooks2();
+    console.log(JSON.stringify(books));
+  } catch (error) {
+    console.error(error);
+  }
+})();
+//get book details based on ISBN using promise
+let isbnBook = (isbn) => {
+  return new Promise((resolve, rejects) => {
+    const book = books[isbn];
+    resolve(book);
+  });
+};
+const isbn = "1";
+isbnBook(isbn)
+  .then((book) => {
+    console.log(book);
+  })
+  .catch((erroe) => {
+    console.error(erroe);
+  });
 // Get book details based on author
 public_users.get("/author/:author", function (req, res) {
   const author = req.params.author;
@@ -58,5 +104,22 @@ public_users.get("/review/:isbn", function (req, res) {
   let filtered_Book = books[isbn];
   res.send(JSON.stringify(filtered_Book.reviews));
 });
+//searh book by author using prmoise
+let autorBook = (author) => {
+  return new Promise((resolve, reject) => {
+    let filtered_Book = Object.values(books).filter((books) => books.author === author);
+    resolve(filtered_Book);
+  });
+};
 
+const author = "Unknown";
+autorBook(author)
+  .then((filtered_Book) => {
+    console.log(filtered_Book);
+  })
+  .catch((error) => {
+    console.log(error);
+  });
+  //search by title using async await
+  
 module.exports.general = public_users;
