@@ -2,17 +2,27 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 let books = require("./booksdb.js");
 const regd_users = express.Router();
-const fs = require('fs');
+const fs = require("fs");
 let users = [];
 const reviews = {};
 const isValid = (username) => {
   //returns boolean
   //write code to check is the username is valid
+  if (username in users) {
+    return true;
+  } else {
+    return false;
+  }
 };
 
 const authenticatedUser = (username, password) => {
   //returns boolean
   //write code to check if username and password match the one we have in records.
+  if (users[username] == password) {
+    return true;
+  } else {
+    return false;
+  }
 };
 
 //only registered users can login
@@ -66,8 +76,7 @@ regd_users.delete("/auth/review/:isbn", (req, res) => {
   const isbn = req.params.isbn;
   if (!username) {
     return res.status(401).send("You must be logged in to post a review.");
-  } 
-  else {
+  } else {
     delete reviews[isbn][username];
     return res.send("Review deleted successfully.");
   }
