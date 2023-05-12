@@ -120,6 +120,23 @@ autorBook(author)
   .catch((error) => {
     console.log(error);
   });
-  //search by title using async await
-  
+//search by title using async await
+let getBooksTitle =  async (title) => {
+  try {
+    let filtered_Book = Object.values(books).filter((books) => books.title === title);
+    return filtered_Book;
+  } catch (error) {
+    throw error;
+  }
+};
+const title = "Njál's Saga";
+// Usage
+(async () => {
+  try {
+    const book = await getBooksTitle(title);
+    console.log(book);
+  } catch (error) {
+    console.error(error);
+  }
+})();
 module.exports.general = public_users;
